@@ -4,123 +4,261 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NKT Expense Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: light;
-      --ink: #172536;
-      --muted: #687889;
-      --line: #dce5ec;
+      --ink: #14283b;
+      --label: #2a3f54;
+      --muted: #64768a;
+      --line: #e2e9f0;
       --paper: #fff;
-      --bg: #f1f5f8;
-      --navy: #18324b;
-      --teal: #087f8c;
-      --teal-dark: #06636d;
-      --red: #a33131;
-      --shadow: 0 5px 22px #18324b0d;
+      --bg: #eef3f7;
+      --navy: #12304a;
+      --teal: #0a8a96;
+      --teal-2: #0aa3a0;
+      --teal-dark: #07707a;
+      --red: #b83a3a;
+      --shadow: 0 12px 32px -14px #12304a45, 0 2px 6px #12304a0d;
+      --radius: 18px;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: var(--bg);
+      min-height: 100vh;
+      background:
+        radial-gradient(900px 480px at 90% -8%, #d3eaee 0%, transparent 62%),
+        radial-gradient(700px 400px at -10% 30%, #e6eef8 0%, transparent 60%),
+        var(--bg);
       color: var(--ink);
-      font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+      font: 15px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
+
+    /* ---------- Header ---------- */
     header {
-      background: var(--navy);
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #12304a 0%, #0d5a70 55%, #0a9aa0 100%);
       color: white;
-      padding: 22px max(20px, calc((100% - 1180px) / 2));
+      padding: 26px max(20px, calc((100% - 1180px) / 2)) 74px;
+      border-radius: 0 0 28px 28px;
     }
-    header h1 { margin: 0; font-size: 1.55rem; }
-    header p { margin: 4px 0 0; color: #d8e4ed; }
-    main { max-width: 1180px; margin: 22px auto; padding: 0 18px 40px; }
+    header::before, header::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .07);
+      pointer-events: none;
+    }
+    header::before { width: 280px; height: 280px; right: -70px; top: -110px; }
+    header::after { width: 170px; height: 170px; right: 150px; bottom: -100px; }
+    .header-inner {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    header h1 { margin: 0; font-size: 1.45rem; letter-spacing: -.015em; line-height: 1.2; }
+    header p { margin: 3px 0 0; color: #cfe3ec; font-size: .88rem; }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fff; color: var(--navy);
+      padding: 10px 18px;
+      border-radius: 999px;
+      box-shadow: 0 8px 20px -8px #00000055;
+    }
+    .nav-btn:hover { background: #e9f7f8; }
+
+    main { position: relative; max-width: 1180px; margin: -46px auto 0; padding: 0 18px 48px; }
+
+    /* ---------- Panels & cards ---------- */
     .panel, .card {
       background: var(--paper);
       border: 1px solid var(--line);
-      border-radius: 12px;
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
     }
-    .panel { padding: 20px; margin-bottom: 18px; }
-    h2 { font-size: 1.1rem; margin: 0 0 15px; }
+    .panel { padding: 22px; margin-bottom: 18px; }
+    h2 {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 1.05rem; margin: 0 0 16px; letter-spacing: -.01em;
+    }
+    h2::before {
+      content: ""; width: 4px; height: 17px; border-radius: 4px;
+      background: linear-gradient(180deg, var(--teal-2), var(--teal));
+    }
     .expense-panel { max-width: 700px; margin: 0 auto 18px; }
+
+    /* ---------- Form ---------- */
     .date-time {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
     }
-    label { display: block; font-weight: 600; font-size: .9rem; margin: 0 0 12px; }
-    .field { margin: 0 0 12px; }
-    .field-label { display: block; font-weight: 600; font-size: .9rem; }
-    .time-picker { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .cat-pay {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+    label { display: block; font-weight: 600; font-size: .88rem; color: var(--label); margin: 0 0 14px; }
+    .field { margin: 0 0 14px; }
+    .field-label { display: block; font-weight: 600; font-size: .88rem; color: var(--label); }
     .req { color: var(--red); }
     input, select, textarea {
       display: block;
       width: 100%;
       min-width: 0;
-      margin-top: 5px;
-      border: 1px solid #cbd6df;
-      border-radius: 7px;
-      background: white;
-      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #d3dee7;
+      border-radius: 11px;
+      background: #f8fbfc;
+      padding: 0 12px;
+      height: 46px;
       color: var(--ink);
       font: inherit;
+      font-size: 16px;
+      font-weight: 500;
+      transition: border-color .15s, box-shadow .15s, background .15s;
     }
-    textarea { min-height: 72px; resize: vertical; }
+    textarea { height: auto; min-height: 76px; padding: 11px 12px; resize: vertical; }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--teal);
+      background: #fff;
+      box-shadow: 0 0 0 4px #0a8a9622;
+    }
+    input::placeholder, textarea::placeholder { color: #9aabba; font-weight: 400; }
+    .time-picker { display: flex; align-items: center; gap: 4px; }
+    .time-picker select {
+      flex: 1 1 0;
+      width: auto;
+      appearance: none;
+      -webkit-appearance: none;
+      text-align: center;
+      text-align-last: center;
+      padding: 0 2px;
+    }
+    .time-picker .sep { margin-top: 6px; font-weight: 700; color: var(--muted); }
+
     button, .file-button {
       border: 0;
-      border-radius: 7px;
-      padding: 9px 13px;
-      background: var(--teal);
+      border-radius: 10px;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal-2) 100%);
       color: white;
       font: inherit;
       font-weight: 650;
       cursor: pointer;
+      box-shadow: 0 8px 16px -9px #0a8a96;
+      transition: filter .15s, transform .05s, background .15s;
     }
-    button:hover, .file-button:hover { background: var(--teal-dark); }
+    button:hover, .file-button:hover { filter: brightness(.93); }
+    button:active, .file-button:active { transform: translateY(1px); }
     button.secondary, .file-button.secondary {
-      background: #edf3f6; color: var(--ink); border: 1px solid var(--line);
+      background: #eef4f7; color: var(--ink); border: 1px solid var(--line); box-shadow: none;
     }
-    button.secondary:hover, .file-button.secondary:hover { background: #e1ebf0; }
-    button.danger { color: var(--red); background: #fff1f1; border: 1px solid #f0d5d5; }
-    button.danger:hover { background: #ffe4e4; }
+    button.secondary:hover, .file-button.secondary:hover { background: #e2ecf1; filter: none; }
+    button.danger { color: var(--red); background: #fff2f2; border: 1px solid #f3d6d6; box-shadow: none; }
+    button.danger:hover { background: #ffe5e5; filter: none; }
+    .nav-btn, .nav-btn:hover { filter: none; }
     .form-actions, .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
-    .card { padding: 17px 19px; }
-    .card-label { color: var(--muted); font-size: .88rem; }
-    .card-value { font-size: 1.55rem; font-weight: 700; margin-top: 5px; }
-    .grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.5fr) minmax(280px, .82fr);
-      gap: 18px;
-      align-items: start;
-    }
-    .toolbar { margin-bottom: 14px; }
+    .form-actions button[type="submit"] { flex: 1 1 auto; padding: 13px 18px; font-size: 1rem; }
+    #status { min-height: 1.4em; color: var(--teal-dark); font-size: .88rem; margin-top: 10px; font-weight: 500; }
+
+    /* ---------- History ---------- */
+    .toolbar { margin-bottom: 16px; }
     .toolbar button, .file-button { font-size: .88rem; }
-    .toolbar input { width: auto; margin: 0; }
-    .toolbar .month-filter { min-width: 145px; }
+    .toolbar label { margin: 0; }
+    .toolbar input { width: auto; margin: 0; height: 40px; font-size: .9rem; }
+    .toolbar .month-filter { min-width: 150px; }
     .file-button { display: inline-block; }
     .file-button input { display: none; }
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-    th, td { border-bottom: 1px solid var(--line); padding: 10px 8px; text-align: left; vertical-align: top; }
-    th { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+    th, td { border-bottom: 1px solid var(--line); padding: 11px 8px; text-align: left; vertical-align: top; }
+    th {
+      color: var(--muted); font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em; white-space: nowrap;
+    }
+    tbody tr:hover td { background: #f6fafc; }
     td.amount, th.amount { text-align: right; white-space: nowrap; }
+    td.amount { font-weight: 700; font-variant-numeric: tabular-nums; }
     td.actions { white-space: nowrap; }
-    td.actions button { padding: 5px 8px; font-size: .8rem; margin-left: 3px; }
+    td.actions button { padding: 5px 9px; font-size: .8rem; margin-left: 3px; }
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }
     .empty { color: var(--muted); padding: 18px 5px; }
-    .bar-row { display: grid; grid-template-columns: minmax(75px, 120px) 1fr auto; gap: 9px; align-items: center; margin: 10px 0; font-size: .88rem; }
-    .bar-track { background: #edf2f5; height: 12px; border-radius: 9px; overflow: hidden; }
-    .bar-fill { background: var(--teal); height: 100%; border-radius: inherit; }
     .notice, .hint { color: var(--muted); font-size: .85rem; }
     .notice { margin: 14px 2px 0; }
-    #status { min-height: 1.4em; color: var(--teal-dark); font-size: .88rem; margin-top: 9px; }
+    .hint { margin: 10px 2px 0; }
+
+    /* ---------- Dashboard ---------- */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+    .card { padding: 17px 19px; }
+    .stat-label {
+      color: var(--muted); font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .stat-value {
+      font-size: clamp(1.05rem, 4.4vw, 1.5rem); font-weight: 700; margin-top: 5px;
+      letter-spacing: -.02em; font-variant-numeric: tabular-nums; word-break: break-word;
+    }
+    .stat-sub { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+    .stat.hero { background: linear-gradient(135deg, #12304a 0%, #0a8a96 100%); border: 0; color: #fff; }
+    .stat.hero .stat-label, .stat.hero .stat-sub { color: #cfe3ec; }
+    .delta.up { color: #c23b3b; font-weight: 600; }
+    .delta.down { color: #17935a; font-weight: 600; }
+
+    .bar-row {
+      display: grid; grid-template-columns: minmax(92px, 130px) 1fr auto;
+      gap: 10px; align-items: center; margin: 11px 0; font-size: .88rem;
+    }
+    .bar-row > span:first-child { white-space: nowrap; color: var(--label); }
+    .bar-row > span:last-child { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .bar-track { background: #eaf1f5; height: 12px; border-radius: 9px; overflow: hidden; }
+    .bar-fill { background: linear-gradient(90deg, #5cc4c8, var(--teal)); height: 100%; border-radius: inherit; }
+    .bar-fill.now { background: linear-gradient(90deg, #2c5f86, var(--navy)); }
+
+    .range-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+    .chip {
+      background: #eef4f7; color: var(--ink); border: 1px solid var(--line);
+      border-radius: 999px; padding: 6px 13px; font-size: .82rem; font-weight: 600; box-shadow: none;
+    }
+    .chip:hover { background: #e0ebf0; filter: none; }
+    .chip.active, .chip.active:hover { background: var(--teal); border-color: var(--teal); color: #fff; }
+    .range-summary { margin: 0 0 18px; color: var(--muted); font-size: .86rem; }
+    .range-summary strong { color: var(--ink); }
+    .pies { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .pie-card h3 { font-size: .92rem; margin: 0 0 12px; color: var(--navy); }
+    .pie-wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; }
+    .pie { width: 180px; height: 180px; flex: 0 0 auto; }
+    .pie path { stroke: #fff; stroke-width: 2; stroke-linejoin: round; }
+    .pie .pie-total-label { fill: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+    .pie .pie-total { fill: var(--ink); font-weight: 700; }
+    .legend { list-style: none; margin: 0; padding: 0; flex: 1 1 190px; font-size: .86rem; }
+    .legend li { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; padding: 5px 0; }
+    .swatch { width: 12px; height: 12px; border-radius: 4px; }
+    .lg-val { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+    .pct { color: var(--muted); font-size: .76rem; font-weight: 500; margin-left: 6px; }
+
+    @media (max-width: 860px) {
+      .pies { grid-template-columns: 1fr; }
+    }
     @media (max-width: 760px) {
-      main { margin-top: 16px; padding-left: 14px; padding-right: 14px; }
+      main { padding-left: 14px; padding-right: 14px; }
       .expense-panel { max-width: none; }
-      .grid { grid-template-columns: 1fr; }
-      .cards { grid-template-columns: 1fr; gap: 9px; }
-      .card { padding: 12px 15px; }
-      .card-value { font-size: 1.3rem; }
-      header { padding: 19px 18px; }
+      .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .card { padding: 13px 15px; }
+      header { padding: 20px 18px 72px; border-radius: 0 0 24px 24px; }
+      header h1 { font-size: 1.28rem; }
       .panel { padding: 16px; }
       .toolbar { align-items: stretch; }
       .toolbar button, .toolbar .file-button { flex: 1 1 auto; text-align: center; }
@@ -133,13 +271,17 @@
         flex-wrap: wrap;
         align-items: baseline;
         gap: 3px 10px;
-        padding: 12px 2px;
-        border-bottom: 1px solid var(--line);
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fbfdfe;
       }
+      tbody tr:hover td { background: transparent; }
       tbody td { display: block; border: 0; padding: 0; }
       tbody td:empty { display: none; }
       td.c-cat { order: 1; flex: 1 1 0; min-width: 0; font-weight: 700; }
-      td.amount { order: 2; flex: 0 0 auto; font-weight: 700; }
+      td.amount { order: 2; flex: 0 0 auto; }
       td.c-desc { order: 3; flex: 0 0 100%; }
       td.c-date { order: 4; }
       td.c-time { order: 5; }
@@ -149,91 +291,97 @@
       td.actions { order: 8; flex: 0 0 100%; margin-top: 4px; }
       td.actions button { margin-left: 0; margin-right: 6px; }
     }
-    @media (max-width: 520px) {
-      .date-time { grid-template-columns: 1fr; gap: 0; }
+    @media (max-width: 560px) {
+      .nav-btn { width: 100%; justify-content: center; }
     }
     @media (max-width: 360px) {
-      input, select { padding: 9px 7px; font-size: .9rem; }
+      input, select { padding: 0 8px; }
+      .time-picker { gap: 2px; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>NKT Expense Tracker</h1>
-    <p>Record spending, review your habits, and export your data.</p>
+    <div class="header-inner">
+      <div class="brand">
+        <div>
+          <h1>NKT Expense Tracker</h1>
+          <p>Record spending, review your habits, and export your data.</p>
+        </div>
+      </div>
+      <button type="button" class="nav-btn" id="viewToggle">Show Spends</button>
+    </div>
   </header>
 
   <main>
-    <section class="panel expense-panel">
-      <h2 id="formTitle">Add an expense</h2>
-      <form id="expenseForm">
-        <div class="date-time">
-          <label>Date
-            <input id="date" type="date">
-          </label>
-          <div class="field">
-            <span class="field-label">Time</span>
-            <div class="time-picker">
-              <select id="timeHour" aria-label="Hour"></select>
-              <select id="timeMin" aria-label="Minute"></select>
-              <select id="timeAmPm" aria-label="AM or PM">
-                <option>AM</option><option>PM</option>
-              </select>
+    <!-- ================= Expenses view ================= -->
+    <div id="mainView">
+      <section class="panel expense-panel">
+        <h2 id="formTitle">Add an expense</h2>
+        <form id="expenseForm">
+          <div class="date-time">
+            <label>Date
+              <input id="date" type="date">
+            </label>
+            <div class="field">
+              <span class="field-label">Time</span>
+              <div class="time-picker">
+                <select id="timeHour" aria-label="Hour"></select>
+                <span class="sep">:</span>
+                <select id="timeMin" aria-label="Minute"></select>
+                <select id="timeAmPm" aria-label="AM or PM">
+                  <option>AM</option><option>PM</option>
+                </select>
+              </div>
             </div>
           </div>
-        </div>
 
-        <label>Category
-          <select id="category">
-            <option value="">Select a category</option>
-            <option>Food</option><option>Petrol</option><option>Diesel</option>
-            <option>Shopping</option><option>Groceries</option><option>Health</option>
-            <option>Utilities</option><option>Entertainment</option><option>Online Shopping</option>
-            <option>Transport</option><option>Housing</option><option>Travel</option>
-            <option>Online Food</option><option>Other</option>
-          </select>
-        </label>
+          <label>Amount <span class="req">*</span>
+            <input id="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
+          </label>
 
-        <label>Amount <span class="req">*</span>
-          <input id="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
-        </label>
+          <div class="cat-pay">
+            <label>Category
+              <select id="category">
+                <option value="">Select</option>
+                <option>Food</option><option>Petrol</option><option>Diesel</option>
+                <option>Shopping</option><option>Groceries</option><option>Health</option>
+                <option>Utilities</option><option>Entertainment</option><option>Online Shopping</option>
+                <option>Transport</option><option>Housing</option><option>Travel</option>
+                <option>Online Food</option><option>Other</option>
+              </select>
+            </label>
 
-        <label>Payment method
-          <select id="payment">
-            <option value="">Select a payment method</option>
-            <option>UPI</option>
-            <option>Cash</option>
-            <option>Credit Card</option>
-            <option>Debit Card</option>
-            <option>Bank Transfer</option>
-            <option>Digital wallet</option>
-            <option>Others</option>
-          </select>
-        </label>
+            <label>Payment method
+              <select id="payment">
+                <option value="">Select</option>
+                <option>UPI</option>
+                <option>Cash</option>
+                <option>Credit Card</option>
+                <option>Debit Card</option>
+                <option>Bank Transfer</option>
+                <option>Digital wallet</option>
+                <option>Others</option>
+              </select>
+            </label>
+          </div>
 
-        <label>Description
-          <input id="description" maxlength="120" placeholder="What did you spend on?">
-        </label>
+          <label>Description
+            <input id="description" maxlength="120" placeholder="What did you spend on?">
+          </label>
 
-        <label>Notes
-          <textarea id="notes" maxlength="500" placeholder="Optional details"></textarea>
-        </label>
+          <label>Notes
+            <textarea id="notes" maxlength="500" placeholder="Optional details"></textarea>
+          </label>
 
-        <div class="form-actions">
-          <button type="submit" id="saveButton">Add expense</button>
-          <button type="button" class="secondary" id="cancelEdit" hidden>Cancel edit</button>
-        </div>
-        <div id="status" role="status" aria-live="polite"></div>
-      </form>
-    </section>
+          <div class="form-actions">
+            <button type="submit" id="saveButton">Add expense</button>
+            <button type="button" class="secondary" id="cancelEdit" hidden>Cancel edit</button>
+          </div>
+          <div id="status" role="status" aria-live="polite"></div>
+        </form>
+      </section>
 
-    <section class="cards" aria-label="Spending summary">
-      <div class="card"><div class="card-label">Spent this month</div><div class="card-value" id="monthTotal">0.00</div></div>
-      <div class="card"><div class="card-label">Spent this year</div><div class="card-value" id="yearTotal">0.00</div></div>
-      <div class="card"><div class="card-label">All recorded expenses</div><div class="card-value" id="allTotal">0.00</div></div>
-    </section>
-
-    <div class="grid">
       <section class="panel">
         <h2>Expense history</h2>
         <div class="toolbar">
@@ -241,9 +389,8 @@
           <button type="button" class="secondary" id="clearFilter">All dates</button>
           <button type="button" id="exportExcel">Export Excel</button>
           <button type="button" class="secondary" id="exportCsv">Export CSV</button>
-          <button type="button" class="secondary" id="backupJson">Backup JSON</button>
           <label class="file-button secondary">Import backup
-            <input id="importJson" type="file" accept=".json,application/json">
+            <input id="importFile" type="file" accept=".csv,.xlsx,.xls,.json,text/csv,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
           </label>
         </div>
         <div class="table-wrap">
@@ -256,18 +403,64 @@
           </table>
           <div id="emptyHistory" class="empty">No expenses recorded yet.</div>
         </div>
-        <p class="notice">Expenses are saved in this browser on this device. Export a backup regularly; clearing browser site data can erase them.</p>
+        <p class="notice">Expenses are saved in this browser on this device. Use Export Excel or Export CSV regularly as your backup, and Import backup to restore it. Clearing browser site data can erase unsaved expenses.</p>
+      </section>
+    </div>
+
+    <!-- ================= Spends dashboard ================= -->
+    <div id="spendsView" hidden>
+      <section class="stats" aria-label="Spend totals">
+        <div class="card stat hero">
+          <div class="stat-label">Total spends</div>
+          <div class="stat-value" id="statTotal">0.00</div>
+          <div class="stat-sub" id="statTotalSub"></div>
+        </div>
+        <div class="card stat">
+          <div class="stat-label">This year</div>
+          <div class="stat-value" id="statYear">0.00</div>
+          <div class="stat-sub" id="statYearSub"></div>
+        </div>
+        <div class="card stat">
+          <div class="stat-label">This month</div>
+          <div class="stat-value" id="statMonth">0.00</div>
+          <div class="stat-sub" id="statMonthSub"></div>
+        </div>
+        <div class="card stat">
+          <div class="stat-label">This week</div>
+          <div class="stat-value" id="statWeek">0.00</div>
+          <div class="stat-sub" id="statWeekSub"></div>
+        </div>
       </section>
 
-      <section>
-        <div class="panel">
-          <h2>Spending by category</h2>
-          <div id="categoryChart" class="empty">Add an expense to see your breakdown.</div>
+      <section class="panel">
+        <h2>Weekly spends</h2>
+        <div id="weeklyChart" class="empty">Add an expense to see your weekly spends.</div>
+        <p class="hint">Last 8 weeks, Monday to Sunday. The darker bar is the current week.</p>
+      </section>
+
+      <section class="panel">
+        <h2>Spend breakdown</h2>
+        <div class="range-row">
+          <label>From <input id="pieFrom" type="date"></label>
+          <label>To <input id="pieTo" type="date"></label>
         </div>
-        <div class="panel">
-          <h2>Monthly spending</h2>
-          <div id="monthlyChart" class="empty">Add an expense to see your monthly totals.</div>
+        <div class="chips" id="rangeChips">
+          <button type="button" class="chip" data-range="month">This month</button>
+          <button type="button" class="chip" data-range="lastmonth">Last month</button>
+          <button type="button" class="chip" data-range="last7">Last 7 days</button>
+          <button type="button" class="chip" data-range="year">This year</button>
+          <button type="button" class="chip" data-range="all">All time</button>
         </div>
+        <p class="range-summary" id="rangeSummary"></p>
+        <div class="pies">
+          <div class="pie-card"><h3>By category</h3><div id="categoryPie"></div></div>
+          <div class="pie-card"><h3>By payment method</h3><div id="paymentPie"></div></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Monthly spending</h2>
+        <div id="monthlyChart" class="empty">Add an expense to see your monthly totals.</div>
       </section>
     </div>
   </main>
@@ -281,6 +474,7 @@
     let expenses = loadExpenses();
     let editingId = null;
 
+    /* ---------- Storage ---------- */
     function loadExpenses() {
       try {
         const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -304,12 +498,34 @@
       }
     }
 
+    function uid() {
+      return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+    }
+
+    /* Payment method defaults to whatever was selected last time */
+    const LAST_PAYMENT_KEY = "personalExpenseTracker.lastPayment";
+    function lastPayment() {
+      try { return localStorage.getItem(LAST_PAYMENT_KEY) || ""; } catch { return ""; }
+    }
+    function rememberPayment(value) {
+      try { localStorage.setItem(LAST_PAYMENT_KEY, value); } catch { /* ignore */ }
+    }
+
+    /* ---------- Date & time helpers ---------- */
     function pad2(n) { return String(n).padStart(2, "0"); }
     function localDateString(date = new Date()) {
       return `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`;
     }
     function localTimeString(date = new Date()) {
       return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+    }
+    function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+    function weekStart(d) { return addDays(d, -((d.getDay() + 6) % 7)); } // Monday
+    function fmtShort(d) { return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }); }
+    function fmtLong(d) { return d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }); }
+    function parseLocalDate(s) {
+      const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || "");
+      return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
     }
 
     /* Time is stored as 24-hour "HH:MM" (keeps old data and sorting working)
@@ -344,50 +560,108 @@
       return `${pad2(h)}:${$("timeMin").value}`;
     }
 
+    /* ---------- Formatting & colours ---------- */
     function escapeHtml(value) {
       return String(value ?? "").replace(/[&<>"']/g, ch => ({
         "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
       })[ch]);
     }
-    function money(value) {
-      return new Intl.NumberFormat(undefined, { style:"currency", currency:"INR" }).format(Number(value)||0);
-    }
+    const inr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" });
+    const inr0 = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+    function money(value) { return inr.format(Number(value) || 0); }
     function categoryLabel(e) { return e.category || "Uncategorized"; }
+    function paymentLabel(e) { return e.payment || "Not specified"; }
+
+    const PALETTE = ["#0f9d9a","#2f6fed","#f5a524","#ef6461","#8b5cf6","#22a06b","#e879a8","#64748b",
+                     "#f97316","#06b6d4","#a3a847","#c2410c","#6366f1","#14b8a6","#94a3b8"];
+    const CATEGORY_ORDER = ["Food","Petrol","Diesel","Shopping","Groceries","Health","Utilities","Entertainment",
+                            "Online Shopping","Transport","Housing","Travel","Online Food","Other","Uncategorized"];
+    const PAYMENT_ORDER = ["UPI","Cash","Credit Card","Debit Card","Bank Transfer","Digital wallet","Others","Not specified"];
+    function colorFrom(order, label) {
+      const i = order.indexOf(label);
+      if (i >= 0) return PALETTE[i % PALETTE.length];
+      let h = 0;
+      for (const c of label) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+      return PALETTE[h % PALETTE.length];
+    }
+    const catColor = label => colorFrom(CATEGORY_ORDER, label);
+    const payColor = label => colorFrom(PAYMENT_ORDER, label);
+
     function sortedExpenses(list = expenses) {
       return [...list].sort((a,b) => b.date.localeCompare(a.date) ||
         String(b.time || "").localeCompare(String(a.time || "")) || b.id.localeCompare(a.id));
     }
+    function sumOf(list) { return list.reduce((s, e) => s + Number(e.amount), 0); }
 
+    /* ---------- Rendering: history ---------- */
     function render() {
-      const month = localDateString().slice(0,7);
-      const year = month.slice(0,4);
-      $("monthTotal").textContent = money(expenses.filter(e=>e.date.slice(0,7)===month).reduce((s,e)=>s+Number(e.amount),0));
-      $("yearTotal").textContent = money(expenses.filter(e=>e.date.slice(0,4)===year).reduce((s,e)=>s+Number(e.amount),0));
-      $("allTotal").textContent = money(expenses.reduce((s,e)=>s+Number(e.amount),0));
+      renderHistory();
+      renderDashboard();
+    }
 
+    function renderHistory() {
       const filter = $("filterMonth").value;
       const shown = sortedExpenses(filter ? expenses.filter(e=>e.date.slice(0,7)===filter) : expenses);
-      $("expenseRows").innerHTML = shown.map(e => `<tr>
+      $("expenseRows").innerHTML = shown.map(e => {
+        const label = categoryLabel(e);
+        return `<tr>
         <td class="c-date">${escapeHtml(e.date)}</td><td class="c-time">${escapeHtml(format12(e.time))}</td>
-        <td class="c-cat">${escapeHtml(categoryLabel(e))}</td><td class="c-desc">${escapeHtml(e.description || "")}</td>
+        <td class="c-cat"><span class="dot" style="background:${catColor(label)}"></span>${escapeHtml(label)}</td><td class="c-desc">${escapeHtml(e.description || "")}</td>
         <td class="c-pay">${escapeHtml(e.payment || "")}</td><td class="amount">${money(e.amount)}</td>
         <td class="c-notes">${escapeHtml(e.notes || "")}</td>
         <td class="actions"><button type="button" class="secondary" data-edit="${escapeHtml(e.id)}">Edit</button>
         <button type="button" class="danger" data-delete="${escapeHtml(e.id)}">Delete</button></td>
-      </tr>`).join("");
+      </tr>`;
+      }).join("");
       $("emptyHistory").hidden = shown.length > 0;
-      renderBars("categoryChart", categoryTotals(), "No expenses to chart yet.");
-      renderBars("monthlyChart", monthlyTotals(), "No expenses to chart yet.");
     }
 
-    function categoryTotals() {
-      const totals = {};
-      for (const e of expenses) {
-        const key = categoryLabel(e);
-        totals[key] = (totals[key] || 0) + Number(e.amount);
-      }
-      return Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    /* ---------- Rendering: dashboard ---------- */
+    function countText(n) { return `${n} expense${n === 1 ? "" : "s"}`; }
+    function deltaHtml(cur, prev, label) {
+      if (!prev) return cur ? `<span class="delta">no spends ${label}</span>` : "";
+      const p = (cur - prev) / prev * 100;
+      if (Math.round(Math.abs(p)) === 0) return `<span class="delta">same as ${label}</span>`;
+      return `<span class="delta ${p > 0 ? "up" : "down"}">${p > 0 ? "▲" : "▼"} ${Math.round(Math.abs(p))}% vs ${label}</span>`;
     }
+    function inRange(e, a, b) { return e.date >= a && e.date <= b; }
+
+    function renderDashboard() {
+      const now = new Date();
+      const today = localDateString(now);
+      const yearKey = today.slice(0, 4);
+      const monthKey = today.slice(0, 7);
+      const prevMonthKey = localDateString(new Date(now.getFullYear(), now.getMonth() - 1, 1)).slice(0, 7);
+      const ws = weekStart(now);
+      const thisWeek = [localDateString(ws), localDateString(addDays(ws, 6))];
+      const lastWeek = [localDateString(addDays(ws, -7)), localDateString(addDays(ws, -1))];
+
+      const yearList = expenses.filter(e => e.date.slice(0,4) === yearKey);
+      const monthList = expenses.filter(e => e.date.slice(0,7) === monthKey);
+      const weekList = expenses.filter(e => inRange(e, thisWeek[0], thisWeek[1]));
+      const prevMonthTotal = sumOf(expenses.filter(e => e.date.slice(0,7) === prevMonthKey));
+      const prevWeekTotal = sumOf(expenses.filter(e => inRange(e, lastWeek[0], lastWeek[1])));
+
+      $("statTotal").textContent = money(sumOf(expenses));
+      $("statTotalSub").textContent = countText(expenses.length);
+      $("statYear").textContent = money(sumOf(yearList));
+      $("statYearSub").textContent = countText(yearList.length);
+      $("statMonth").textContent = money(sumOf(monthList));
+      $("statMonthSub").innerHTML = [countText(monthList.length), deltaHtml(sumOf(monthList), prevMonthTotal, "last month")].filter(Boolean).join(" · ");
+      $("statWeek").textContent = money(sumOf(weekList));
+      $("statWeekSub").innerHTML = [countText(weekList.length), deltaHtml(sumOf(weekList), prevWeekTotal, "last week")].filter(Boolean).join(" · ");
+
+      const weeks = [];
+      for (let i = 7; i >= 0; i--) {
+        const s = addDays(ws, -7 * i), e = addDays(s, 6);
+        const a = localDateString(s), b = localDateString(e);
+        weeks.push([`${fmtShort(s)} – ${fmtShort(e)}`, sumOf(expenses.filter(x => inRange(x, a, b)))]);
+      }
+      renderBars("weeklyChart", expenses.length ? weeks : [], "Add an expense to see your weekly spends.", true);
+      renderBars("monthlyChart", monthlyTotals(), "Add an expense to see your monthly totals.");
+      renderPies();
+    }
+
     function monthlyTotals() {
       const totals = {};
       for (const e of expenses) {
@@ -396,22 +670,136 @@
       }
       return Object.entries(totals).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,12).reverse();
     }
-    function renderBars(id, entries, emptyText) {
+
+    function renderBars(id, entries, emptyText, highlightLast = false) {
       const target = $(id);
-      if (!entries.length) { target.className="empty"; target.textContent=emptyText; return; }
-      target.className="";
-      const max = Math.max(...entries.map(([,v])=>v), .01);
-      target.innerHTML = entries.map(([label,value]) => `<div class="bar-row">
+      if (!entries.length) { target.className = "empty"; target.textContent = emptyText; return; }
+      target.className = "";
+      const max = Math.max(...entries.map(([,v]) => v), .01);
+      target.innerHTML = entries.map(([label, value], i) => {
+        const width = value > 0 ? Math.max(2, value / max * 100) : 0;
+        const cls = highlightLast && i === entries.length - 1 ? "bar-fill now" : "bar-fill";
+        return `<div class="bar-row">
         <span title="${escapeHtml(label)}">${escapeHtml(label)}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(2,value/max*100)}%"></div></div>
+        <div class="bar-track"><div class="${cls}" style="width:${width}%"></div></div>
         <span>${money(value)}</span>
-      </div>`).join("");
+      </div>`;
+      }).join("");
     }
+
+    /* ---------- Pie charts ---------- */
+    function presetRange(kind) {
+      const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+      switch (kind) {
+        case "month": return [localDateString(new Date(y, m, 1)), localDateString(new Date(y, m + 1, 0))];
+        case "lastmonth": return [localDateString(new Date(y, m - 1, 1)), localDateString(new Date(y, m, 0))];
+        case "last7": return [localDateString(addDays(now, -6)), localDateString(now)];
+        case "year": return [`${y}-01-01`, `${y}-12-31`];
+        default: return ["", ""];
+      }
+    }
+
+    function renderPies() {
+      let a = $("pieFrom").value, b = $("pieTo").value;
+      if (a && b && a > b) [a, b] = [b, a];
+      const list = expenses.filter(e => (!a || e.date >= a) && (!b || e.date <= b));
+      const total = sumOf(list);
+
+      let rangeText = "All dates";
+      if (a && b) rangeText = `${fmtLong(parseLocalDate(a) || new Date())} – ${fmtLong(parseLocalDate(b) || new Date())}`;
+      else if (a) rangeText = `From ${fmtLong(parseLocalDate(a) || new Date())}`;
+      else if (b) rangeText = `Up to ${fmtLong(parseLocalDate(b) || new Date())}`;
+      $("rangeSummary").innerHTML = `<strong>${money(total)}</strong> across ${countText(list.length)} · ${escapeHtml(rangeText)}`;
+
+      const group = labelFn => {
+        const totals = {};
+        for (const e of list) { const k = labelFn(e); totals[k] = (totals[k] || 0) + Number(e.amount); }
+        return Object.entries(totals).sort((x, y) => y[1] - x[1]);
+      };
+      renderPie("categoryPie", group(categoryLabel), catColor, total);
+      renderPie("paymentPie", group(paymentLabel), payColor, total);
+
+      document.querySelectorAll("#rangeChips .chip").forEach(chip => {
+        const [pa, pb] = presetRange(chip.dataset.range);
+        chip.classList.toggle("active", pa === $("pieFrom").value && pb === $("pieTo").value);
+      });
+    }
+
+    function renderPie(id, entries, colorFn, total) {
+      const el = $(id);
+      if (!entries.length || total <= 0) {
+        el.className = "empty";
+        el.textContent = "No expenses in this date range.";
+        return;
+      }
+      el.className = "pie-wrap";
+      const cx = 100, cy = 100, R = 92, r = 56;
+      let angle = -Math.PI / 2;
+      let shapes;
+      if (entries.length === 1) {
+        const [label, value] = entries[0];
+        shapes = `<circle cx="${cx}" cy="${cy}" r="${(R + r) / 2}" fill="none" stroke="${colorFn(label)}" stroke-width="${R - r}"><title>${escapeHtml(label)}: ${money(value)} (100%)</title></circle>`;
+      } else {
+        shapes = entries.map(([label, value]) => {
+          const frac = value / total;
+          const a0 = angle, a1 = angle + frac * 2 * Math.PI;
+          angle = a1;
+          const large = frac > .5 ? 1 : 0;
+          const pt = (rad, ang) => [cx + rad * Math.cos(ang), cy + rad * Math.sin(ang)].map(n => n.toFixed(2));
+          const [x0, y0] = pt(R, a0), [x1, y1] = pt(R, a1), [x2, y2] = pt(r, a1), [x3, y3] = pt(r, a0);
+          const d = `M${x0} ${y0}A${R} ${R} 0 ${large} 1 ${x1} ${y1}L${x2} ${y2}A${r} ${r} 0 ${large} 0 ${x3} ${y3}Z`;
+          return `<path d="${d}" fill="${colorFn(label)}"><title>${escapeHtml(label)}: ${money(value)} (${(frac * 100).toFixed(1)}%)</title></path>`;
+        }).join("");
+      }
+      const totalText = inr0.format(total);
+      const fs = totalText.length > 10 ? 12 : totalText.length > 8 ? 14 : 16;
+      const legend = entries.map(([label, value]) => {
+        const pct = value / total * 100;
+        return `<li><span class="swatch" style="background:${colorFn(label)}"></span>
+          <span>${escapeHtml(label)}</span>
+          <span class="lg-val">${money(value)}<span class="pct">${pct < 1 ? "<1" : Math.round(pct)}%</span></span></li>`;
+      }).join("");
+      el.innerHTML = `<svg class="pie" viewBox="0 0 200 200" role="img" aria-label="Pie chart">${shapes}
+        <text x="100" y="94" text-anchor="middle" class="pie-total-label">Total</text>
+        <text x="100" y="${100 + fs * .75}" text-anchor="middle" class="pie-total" font-size="${fs}">${escapeHtml(totalText)}</text></svg>
+        <ul class="legend">${legend}</ul>`;
+    }
+
+    /* ---------- Views ---------- */
+    const ICON_CHART = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V4M16 20v-6M22 20H2"/></svg>';
+    const ICON_PLUS = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+    let view = "main";
+    function showView(name) {
+      view = name;
+      $("mainView").hidden = name === "spends";
+      $("spendsView").hidden = name !== "spends";
+      $("viewToggle").innerHTML = name === "spends" ? `${ICON_PLUS}<span>Add Expense</span>` : `${ICON_CHART}<span>Show Spends</span>`;
+      if (name === "spends") renderDashboard();
+      window.scrollTo(0, 0);
+    }
+    function applyHash() { showView(location.hash === "#spends" ? "spends" : "main"); }
+    $("viewToggle").addEventListener("click", () => {
+      location.hash = view === "spends" ? "#add" : "#spends";
+    });
+    window.addEventListener("hashchange", applyHash);
+
+    $("rangeChips").addEventListener("click", event => {
+      const chip = event.target.closest(".chip");
+      if (!chip) return;
+      const [a, b] = presetRange(chip.dataset.range);
+      $("pieFrom").value = a; $("pieTo").value = b;
+      renderPies();
+    });
+    $("pieFrom").addEventListener("input", renderPies);
+    $("pieTo").addEventListener("input", renderPies);
+
+    /* ---------- Form ---------- */
     function resetForm() {
       editingId = null;
       $("expenseForm").reset();
       $("date").value = localDateString();
       setTime(localTimeString());
+      $("payment").value = lastPayment();
       $("formTitle").textContent = "Add an expense";
       $("saveButton").textContent = "Add expense";
       $("cancelEdit").hidden = true;
@@ -425,7 +813,7 @@
         return;
       }
       const entry = {
-        id: editingId || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
+        id: editingId || uid(),
         // Date falls back to today if left blank so month/year totals still work
         date: $("date").value || localDateString(), time: getTime(), category: $("category").value,
         amount: Math.round(amount*100)/100, payment: $("payment").value,
@@ -466,12 +854,10 @@
     });
 
     $("cancelEdit").addEventListener("click", resetForm);
-    $("filterMonth").addEventListener("input", render);
-    $("clearFilter").addEventListener("click", ()=>{$("filterMonth").value="";render();});
-    buildTimePicker();
-    $("date").value=localDateString();
-    setTime(localTimeString());
+    $("filterMonth").addEventListener("input", renderHistory);
+    $("clearFilter").addEventListener("click", ()=>{$("filterMonth").value="";renderHistory();});
 
+    /* ---------- Export ---------- */
     function exportRows() {
       return sortedExpenses().map(e=>({
         Date:e.date, Time:format12(e.time), Category:e.category, Amount:Number(e.amount),
@@ -490,7 +876,9 @@
       if (!rows.length) { alert("There are no expenses to export."); return; }
       if (!window.XLSX) { alert("Excel export needs the SheetJS library to load. You can still use Export CSV."); return; }
       const workbook=XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(rows),"Expenses");
+      const sheet=XLSX.utils.json_to_sheet(rows);
+      sheet["!cols"]=[{wch:12},{wch:10},{wch:16},{wch:12},{wch:16},{wch:28},{wch:28}];
+      XLSX.utils.book_append_sheet(workbook,sheet,"Expenses");
       XLSX.writeFile(workbook,"expenses.xlsx");
     });
 
@@ -500,33 +888,126 @@
       const columns=Object.keys(rows[0]);
       const quote=value=>`"${String(value ?? "").replace(/"/g,'""')}"`;
       const csv=[columns.map(quote).join(","),...rows.map(row=>columns.map(col=>quote(row[col])).join(","))].join("\r\n");
-      downloadBlob(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),"expenses.csv");
+      downloadBlob(new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"}),"expenses.csv");
     });
 
-    $("backupJson").addEventListener("click", ()=>{
-      const data=JSON.stringify({format:"personal-expense-tracker",version:1,expenses},null,2);
-      downloadBlob(new Blob([data],{type:"application/json"}),"expenses-backup.json");
-    });
+    /* ---------- Import (CSV / Excel / old JSON backups) ---------- */
+    function parseCsv(text) {
+      text = text.replace(/^﻿/, "");
+      const rows = []; let row = [], field = "", inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuotes) {
+          if (c === '"') { if (text[i+1] === '"') { field += '"'; i++; } else inQuotes = false; }
+          else field += c;
+        } else if (c === '"') inQuotes = true;
+        else if (c === ",") { row.push(field); field = ""; }
+        else if (c === "\n" || c === "\r") {
+          if (c === "\r" && text[i+1] === "\n") i++;
+          row.push(field); field = ""; rows.push(row); row = [];
+        } else field += c;
+      }
+      if (field !== "" || row.length) { row.push(field); rows.push(row); }
+      return rows.filter(r => r.some(v => String(v).trim() !== ""));
+    }
+    const normKey = k => String(k).toLowerCase().replace(/[^a-z]/g, "");
+    function rowsToObjects(rows) {
+      if (!rows.length) return [];
+      const head = rows[0].map(normKey);
+      return rows.slice(1).map(r => {
+        const o = {};
+        head.forEach((h, i) => { o[h] = r[i] ?? ""; });
+        return o;
+      });
+    }
+    function normalizeKeys(o) {
+      const n = {};
+      for (const k in o) n[normKey(k)] = o[k];
+      return n;
+    }
+    function importDate(v) {
+      if (typeof v === "number" && v > 0) { // Excel date serial
+        const d = new Date(Date.UTC(1899, 11, 30) + Math.floor(v) * 86400000);
+        return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth()+1)}-${pad2(d.getUTCDate())}`;
+      }
+      const s = String(v ?? "").trim();
+      if (!s) return "";
+      let m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/.exec(s);
+      if (m) return `${m[1]}-${pad2(m[2])}-${pad2(m[3])}`;
+      m = /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/.exec(s); // day first
+      if (m) { let y = +m[3]; if (y < 100) y += 2000; return `${y}-${pad2(m[2])}-${pad2(m[1])}`; }
+      return "";
+    }
+    function importTime(v) {
+      if (typeof v === "number") { // Excel time fraction
+        const mins = Math.round((v % 1) * 1440) % 1440;
+        return `${pad2(Math.floor(mins / 60))}:${pad2(mins % 60)}`;
+      }
+      const m = /^(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp][Mm])?$/.exec(String(v ?? "").trim());
+      if (!m) return "";
+      let h = +m[1]; const ap = (m[3] || "").toUpperCase();
+      if (ap === "PM" && h < 12) h += 12;
+      if (ap === "AM" && h === 12) h = 0;
+      return h > 23 ? "" : `${pad2(h)}:${m[2]}`;
+    }
+    function toExpense(o) {
+      const amount = Number(String(o.amount ?? "").replace(/[^0-9.\-]/g, ""));
+      if (!Number.isFinite(amount) || amount <= 0) return null;
+      return {
+        id: uid(), date: importDate(o.date) || localDateString(), time: importTime(o.time),
+        category: String(o.category ?? "").trim(), amount: Math.round(amount * 100) / 100,
+        payment: String(o.paymentmethod ?? o.payment ?? "").trim(),
+        description: String(o.description ?? "").trim(), notes: String(o.notes ?? "").trim()
+      };
+    }
 
-    $("importJson").addEventListener("change", async event=>{
+    $("importFile").addEventListener("change", async event=>{
       const file=event.target.files[0];
       if (!file) return;
       try {
-        const parsed=JSON.parse(await file.text());
-        const incoming=Array.isArray(parsed) ? parsed : parsed.expenses;
-        if (!Array.isArray(incoming) || !incoming.every(isValidExpense)) throw new Error("This file does not look like a valid expense backup.");
-        if (!confirm(`Replace your current ${expenses.length} expenses with ${incoming.length} imported expenses? Export a backup first if needed.`)) return;
-        expenses=incoming.map(e=>({
-          id:String(e.id),date:String(e.date),time:String(e.time || ""),
-          category:String(e.category),amount:Number(e.amount),payment:String(e.payment || ""),
-          description:String(e.description || ""),notes:String(e.notes || "")
-        }));
+        const name=file.name.toLowerCase();
+        let incoming, skipped=0;
+        if (name.endsWith(".json")) {
+          const parsed=JSON.parse(await file.text());
+          const list=Array.isArray(parsed) ? parsed : parsed.expenses;
+          if (!Array.isArray(list) || !list.every(isValidExpense)) throw new Error("This file does not look like a valid expense backup.");
+          incoming=list.map(e=>({
+            id:String(e.id),date:String(e.date),time:String(e.time || ""),
+            category:String(e.category),amount:Number(e.amount),payment:String(e.payment || ""),
+            description:String(e.description || ""),notes:String(e.notes || "")
+          }));
+        } else {
+          let objs;
+          if (name.endsWith(".xlsx") || name.endsWith(".xls")) {
+            if (!window.XLSX) throw new Error("Excel import needs the SheetJS library to load (check your internet connection). You can import a CSV file instead.");
+            const wb=XLSX.read(await file.arrayBuffer(),{type:"array"});
+            objs=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:"",raw:true}).map(normalizeKeys);
+          } else if (name.endsWith(".csv")) {
+            objs=rowsToObjects(parseCsv(await file.text()));
+          } else {
+            throw new Error("Please choose a CSV, Excel (.xlsx) or JSON file.");
+          }
+          incoming=objs.map(toExpense).filter(Boolean);
+          skipped=objs.length-incoming.length;
+          if (!incoming.length) throw new Error("No valid rows found. The file needs an Amount column (Date, Time, Category, Payment method, Description and Notes are optional).");
+        }
+        const note=skipped ? ` (${skipped} row${skipped===1?"":"s"} without a valid amount will be skipped)` : "";
+        if (!confirm(`Replace your current ${expenses.length} expenses with ${incoming.length} imported expenses${note}? Export a backup first if needed.`)) return;
+        expenses=incoming;
         if (saveExpenses()) { render(); alert("Backup imported."); }
-      } catch(error) { alert(error.message || "Could not read that backup file."); }
+      } catch(error) { alert(error.message || "Could not read that file."); }
       finally { event.target.value=""; }
     });
 
+    /* ---------- Start up ---------- */
+    buildTimePicker();
+    $("date").value=localDateString();
+    setTime(localTimeString());
+    $("payment").value = lastPayment();
+    $("payment").addEventListener("change", () => rememberPayment($("payment").value));
+    { const [a, b] = presetRange("month"); $("pieFrom").value = a; $("pieTo").value = b; } // default: current month
     render();
+    applyHash();
   </script>
 </body>
 </html>
