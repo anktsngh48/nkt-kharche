@@ -48,6 +48,10 @@
       gap: 12px;
     }
     label { display: block; font-weight: 600; font-size: .9rem; margin: 0 0 12px; }
+    .field { margin: 0 0 12px; }
+    .field-label { display: block; font-weight: 600; font-size: .9rem; }
+    .time-picker { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .req { color: var(--red); }
     input, select, textarea {
       display: block;
       width: 100%;
@@ -120,9 +124,35 @@
       .panel { padding: 16px; }
       .toolbar { align-items: stretch; }
       .toolbar button, .toolbar .file-button { flex: 1 1 auto; text-align: center; }
+
+      /* Expense history: each row becomes a compact card for portrait phones */
+      table, tbody { display: block; }
+      thead { display: none; }
+      tbody tr {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 3px 10px;
+        padding: 12px 2px;
+        border-bottom: 1px solid var(--line);
+      }
+      tbody td { display: block; border: 0; padding: 0; }
+      tbody td:empty { display: none; }
+      td.c-cat { order: 1; flex: 1 1 0; min-width: 0; font-weight: 700; }
+      td.amount { order: 2; flex: 0 0 auto; font-weight: 700; }
+      td.c-desc { order: 3; flex: 0 0 100%; }
+      td.c-date { order: 4; }
+      td.c-time { order: 5; }
+      td.c-pay { order: 6; }
+      td.c-date, td.c-time, td.c-pay { color: var(--muted); font-size: .82rem; }
+      td.c-notes { order: 7; flex: 0 0 100%; color: var(--muted); font-size: .82rem; }
+      td.actions { order: 8; flex: 0 0 100%; margin-top: 4px; }
+      td.actions button { margin-left: 0; margin-right: 6px; }
+    }
+    @media (max-width: 520px) {
+      .date-time { grid-template-columns: 1fr; gap: 0; }
     }
     @media (max-width: 360px) {
-      .date-time { gap: 8px; }
       input, select { padding: 9px 7px; font-size: .9rem; }
     }
   </style>
@@ -139,15 +169,22 @@
       <form id="expenseForm">
         <div class="date-time">
           <label>Date
-            <input id="date" type="date" required>
+            <input id="date" type="date">
           </label>
-          <label>Time
-            <input id="time" type="time" required>
-          </label>
+          <div class="field">
+            <span class="field-label">Time</span>
+            <div class="time-picker">
+              <select id="timeHour" aria-label="Hour"></select>
+              <select id="timeMin" aria-label="Minute"></select>
+              <select id="timeAmPm" aria-label="AM or PM">
+                <option>AM</option><option>PM</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <label>Category
-          <select id="category" required>
+          <select id="category">
             <option value="">Select a category</option>
             <option>Food</option><option>Petrol</option><option>Diesel</option>
             <option>Shopping</option><option>Groceries</option><option>Health</option>
@@ -157,12 +194,12 @@
           </select>
         </label>
 
-        <label>Amount
+        <label>Amount <span class="req">*</span>
           <input id="amount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required>
         </label>
 
         <label>Payment method
-          <select id="payment" required>
+          <select id="payment">
             <option value="">Select a payment method</option>
             <option>UPI</option>
             <option>Cash</option>
@@ -267,12 +304,46 @@
       }
     }
 
+    function pad2(n) { return String(n).padStart(2, "0"); }
     function localDateString(date = new Date()) {
-      return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+      return `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`;
     }
     function localTimeString(date = new Date()) {
-      return `${String(date.getHours()).padStart(2,"0")}:${String(date.getMinutes()).padStart(2,"0")}`;
+      return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
     }
+
+    /* Time is stored as 24-hour "HH:MM" (keeps old data and sorting working)
+       and shown to the user in 12-hour AM/PM format. */
+    function format12(t) {
+      const m = /^(\d{1,2}):(\d{2})/.exec(t || "");
+      if (!m) return "";
+      const h = Number(m[1]);
+      return `${h % 12 || 12}:${m[2]} ${h >= 12 ? "PM" : "AM"}`;
+    }
+    function buildTimePicker() {
+      $("timeHour").innerHTML = '<option value="">--</option>' +
+        Array.from({length:12}, (_,i) => `<option value="${i+1}">${i+1}</option>`).join("");
+      $("timeMin").innerHTML = Array.from({length:60}, (_,i) => `<option value="${pad2(i)}">${pad2(i)}</option>`).join("");
+    }
+    function setTime(t) {
+      const m = /^(\d{1,2}):(\d{2})/.exec(t || "");
+      if (!m) {
+        $("timeHour").value = ""; $("timeMin").value = "00"; $("timeAmPm").value = "AM";
+        return;
+      }
+      const h = Number(m[1]);
+      $("timeHour").value = String(h % 12 || 12);
+      $("timeMin").value = m[2];
+      $("timeAmPm").value = h >= 12 ? "PM" : "AM";
+    }
+    function getTime() {
+      const hour = $("timeHour").value;
+      if (!hour) return "";
+      let h = Number(hour) % 12;
+      if ($("timeAmPm").value === "PM") h += 12;
+      return `${pad2(h)}:${$("timeMin").value}`;
+    }
+
     function escapeHtml(value) {
       return String(value ?? "").replace(/[&<>"']/g, ch => ({
         "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
@@ -281,6 +352,7 @@
     function money(value) {
       return new Intl.NumberFormat(undefined, { style:"currency", currency:"INR" }).format(Number(value)||0);
     }
+    function categoryLabel(e) { return e.category || "Uncategorized"; }
     function sortedExpenses(list = expenses) {
       return [...list].sort((a,b) => b.date.localeCompare(a.date) ||
         String(b.time || "").localeCompare(String(a.time || "")) || b.id.localeCompare(a.id));
@@ -296,10 +368,10 @@
       const filter = $("filterMonth").value;
       const shown = sortedExpenses(filter ? expenses.filter(e=>e.date.slice(0,7)===filter) : expenses);
       $("expenseRows").innerHTML = shown.map(e => `<tr>
-        <td>${escapeHtml(e.date)}</td><td>${escapeHtml(e.time || "")}</td>
-        <td>${escapeHtml(e.category)}</td><td>${escapeHtml(e.description || "")}</td>
-        <td>${escapeHtml(e.payment || "")}</td><td class="amount">${money(e.amount)}</td>
-        <td>${escapeHtml(e.notes || "")}</td>
+        <td class="c-date">${escapeHtml(e.date)}</td><td class="c-time">${escapeHtml(format12(e.time))}</td>
+        <td class="c-cat">${escapeHtml(categoryLabel(e))}</td><td class="c-desc">${escapeHtml(e.description || "")}</td>
+        <td class="c-pay">${escapeHtml(e.payment || "")}</td><td class="amount">${money(e.amount)}</td>
+        <td class="c-notes">${escapeHtml(e.notes || "")}</td>
         <td class="actions"><button type="button" class="secondary" data-edit="${escapeHtml(e.id)}">Edit</button>
         <button type="button" class="danger" data-delete="${escapeHtml(e.id)}">Delete</button></td>
       </tr>`).join("");
@@ -310,7 +382,10 @@
 
     function categoryTotals() {
       const totals = {};
-      for (const e of expenses) totals[e.category] = (totals[e.category] || 0) + Number(e.amount);
+      for (const e of expenses) {
+        const key = categoryLabel(e);
+        totals[key] = (totals[key] || 0) + Number(e.amount);
+      }
       return Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,10);
     }
     function monthlyTotals() {
@@ -336,7 +411,7 @@
       editingId = null;
       $("expenseForm").reset();
       $("date").value = localDateString();
-      $("time").value = localTimeString();
+      setTime(localTimeString());
       $("formTitle").textContent = "Add an expense";
       $("saveButton").textContent = "Add expense";
       $("cancelEdit").hidden = true;
@@ -351,7 +426,8 @@
       }
       const entry = {
         id: editingId || (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`),
-        date: $("date").value, time: $("time").value, category: $("category").value,
+        // Date falls back to today if left blank so month/year totals still work
+        date: $("date").value || localDateString(), time: getTime(), category: $("category").value,
         amount: Math.round(amount*100)/100, payment: $("payment").value,
         description: $("description").value.trim(), notes: $("notes").value.trim()
       };
@@ -371,7 +447,7 @@
         const e = expenses.find(item=>item.id===editId);
         if (!e) return;
         editingId=e.id;
-        $("date").value=e.date; $("time").value=e.time || "12:00";
+        $("date").value=e.date; setTime(e.time || "");
         $("category").value=e.category; $("amount").value=e.amount;
         $("payment").value=e.payment || ""; $("description").value=e.description || "";
         $("notes").value=e.notes || "";
@@ -392,12 +468,13 @@
     $("cancelEdit").addEventListener("click", resetForm);
     $("filterMonth").addEventListener("input", render);
     $("clearFilter").addEventListener("click", ()=>{$("filterMonth").value="";render();});
+    buildTimePicker();
     $("date").value=localDateString();
-    $("time").value=localTimeString();
+    setTime(localTimeString());
 
     function exportRows() {
       return sortedExpenses().map(e=>({
-        Date:e.date, Time:e.time || "", Category:e.category, Amount:Number(e.amount),
+        Date:e.date, Time:format12(e.time), Category:e.category, Amount:Number(e.amount),
         "Payment method":e.payment || "", Description:e.description || "", Notes:e.notes || ""
       }));
     }
@@ -440,7 +517,7 @@
         if (!Array.isArray(incoming) || !incoming.every(isValidExpense)) throw new Error("This file does not look like a valid expense backup.");
         if (!confirm(`Replace your current ${expenses.length} expenses with ${incoming.length} imported expenses? Export a backup first if needed.`)) return;
         expenses=incoming.map(e=>({
-          id:String(e.id),date:String(e.date),time:String(e.time || "12:00"),
+          id:String(e.id),date:String(e.date),time:String(e.time || ""),
           category:String(e.category),amount:Number(e.amount),payment:String(e.payment || ""),
           description:String(e.description || ""),notes:String(e.notes || "")
         }));
