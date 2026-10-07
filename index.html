@@ -66,16 +66,6 @@
     .brand { display: flex; align-items: center; gap: 13px; }
     header h1 { margin: 0; font-size: 1.45rem; letter-spacing: -.015em; line-height: 1.2; }
     header p { margin: 3px 0 0; color: #cfe3ec; font-size: .88rem; }
-    .pill-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: #fff; color: var(--navy);
-      border: 1px solid var(--line);
-      padding: 9px 16px;
-      border-radius: 999px;
-      box-shadow: 0 6px 16px -10px #12304a66;
-    }
-    .pill-btn:hover { background: #eef7f8; }
-    .view-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
     .view-buttons { display: flex; gap: 10px; flex-wrap: wrap; max-width: 700px; margin: 0 auto 18px; }
     .view-buttons button {
       flex: 1 1 220px;
@@ -181,7 +171,6 @@
     button.secondary:hover, .file-button.secondary:hover { background: #e2ecf1; filter: none; }
     button.danger { color: var(--red); background: #fff2f2; border: 1px solid #f3d6d6; box-shadow: none; }
     button.danger:hover { background: #ffe5e5; filter: none; }
-    .pill-btn, .pill-btn:hover { filter: none; }
     .form-actions, .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     .form-actions button[type="submit"] { flex: 1 1 auto; padding: 13px 18px; font-size: 1rem; }
     #status { min-height: 1.4em; color: var(--teal-dark); font-size: .88rem; margin-top: 10px; font-weight: 500; }
@@ -394,48 +383,13 @@
       </section>
 
       <div class="view-buttons">
-        <button type="button" data-go="#spends"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V4M16 20v-6M22 20H2"/></svg>Show Spends</button>
-        <button type="button" class="secondary" data-go="#history"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Show Spends History</button>
+        <button type="button" id="toggleSpends" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V4M16 20v-6M22 20H2"/></svg><span class="btn-label">Show Spends</span></button>
+        <button type="button" class="secondary" id="toggleHistory" aria-expanded="false"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><span class="btn-label">Show Spends History</span></button>
       </div>
-    </div>
-
-    <!-- ================= Spends history view ================= -->
-    <div id="historyView" hidden>
-      <div class="view-nav">
-        <button type="button" class="pill-btn" data-go="#add"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Add Spend</button>
-        <button type="button" class="pill-btn" data-go="#spends"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V4M16 20v-6M22 20H2"/></svg>Show Spends</button>
-      </div>
-      <section class="panel">
-        <h2>Spends history</h2>
-        <div class="toolbar">
-          <input class="month-filter" id="filterMonth" type="month" aria-label="Filter spends by month">
-          <button type="button" class="secondary" id="clearFilter">All dates</button>
-          <button type="button" id="exportExcel">Export Excel</button>
-          <button type="button" class="secondary" id="exportCsv">Export CSV</button>
-          <label class="file-button secondary">Import backup
-            <input id="importFile" type="file" accept=".csv,.xlsx,.xls,.json,text/csv,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-          </label>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>Date</th><th>Time</th><th>Category</th><th>Description</th>
-              <th>Payment</th><th class="amount">Amount</th><th>Notes</th><th>Actions</th>
-            </tr></thead>
-            <tbody id="expenseRows"></tbody>
-          </table>
-          <div id="emptyHistory" class="empty">No spends recorded yet.</div>
-        </div>
-        <p class="notice">Spends are saved in this browser on this device. Use Export Excel or Export CSV regularly as your backup, and Import backup to restore it. Clearing browser site data can erase unsaved spends.</p>
-      </section>
     </div>
 
     <!-- ================= Spends dashboard ================= -->
     <div id="spendsView" hidden>
-      <div class="view-nav">
-        <button type="button" class="pill-btn" data-go="#add"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Add Spend</button>
-        <button type="button" class="pill-btn" data-go="#history"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Show Spends History</button>
-      </div>
       <section class="stats" aria-label="Spend totals">
         <div class="card stat hero">
           <div class="stat-label">Total spends</div>
@@ -491,6 +445,33 @@
       <section class="panel">
         <h2>Monthly spending</h2>
         <div id="monthlyChart" class="empty">Add a spend to see your monthly totals.</div>
+      </section>
+    </div>
+
+    <!-- ================= Spends history view ================= -->
+    <div id="historyView" hidden>
+      <section class="panel">
+        <h2>Spends history</h2>
+        <div class="toolbar">
+          <input class="month-filter" id="filterMonth" type="month" aria-label="Filter spends by month">
+          <button type="button" class="secondary" id="clearFilter">All dates</button>
+          <button type="button" id="exportExcel">Export Excel</button>
+          <button type="button" class="secondary" id="exportCsv">Export CSV</button>
+          <label class="file-button secondary">Import backup
+            <input id="importFile" type="file" accept=".csv,.xlsx,.xls,.json,text/csv,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Date</th><th>Time</th><th>Category</th><th>Description</th>
+              <th>Payment</th><th class="amount">Amount</th><th>Notes</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="expenseRows"></tbody>
+          </table>
+          <div id="emptyHistory" class="empty">No spends recorded yet.</div>
+        </div>
+        <p class="notice">Spends are saved in this browser on this device. Use Export Excel or Export CSV regularly as your backup, and Import backup to restore it. Clearing browser site data can erase unsaved spends.</p>
       </section>
     </div>
   </main>
@@ -814,22 +795,23 @@
     }
 
     /* ---------- Views ---------- */
-    function showView(name) {
-      $("addView").hidden = name !== "add";
-      $("historyView").hidden = name !== "history";
-      $("spendsView").hidden = name !== "spends";
-      if (name === "spends") renderDashboard();
-      window.scrollTo(0, 0);
+    /* Show Spends / Show Spends History just open or close their section below the
+       Add Spend card. The Add Spend card always stays visible and the URL never changes. */
+    function setupToggle(buttonId, sectionId, showText, hideText) {
+      const btn = $(buttonId), section = $(sectionId), label = btn.querySelector(".btn-label");
+      btn.addEventListener("click", () => {
+        const opening = section.hidden;
+        section.hidden = !opening;
+        btn.setAttribute("aria-expanded", String(opening));
+        label.textContent = opening ? hideText : showText;
+        if (opening) {
+          if (sectionId === "spendsView") renderDashboard();
+          if (section.scrollIntoView) section.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
     }
-    function applyHash() {
-      const h = location.hash;
-      showView(h === "#spends" ? "spends" : h === "#history" ? "history" : "add");
-    }
-    document.addEventListener("click", event => {
-      const btn = event.target.closest("[data-go]");
-      if (btn) location.hash = btn.dataset.go;
-    });
-    window.addEventListener("hashchange", applyHash);
+    setupToggle("toggleSpends", "spendsView", "Show Spends", "Hide Spends");
+    setupToggle("toggleHistory", "historyView", "Show Spends History", "Hide Spends History");
     $("weekMonth").addEventListener("input", renderDashboard);
 
     $("rangeChips").addEventListener("click", event => {
@@ -891,7 +873,7 @@
         $("formTitle").textContent="Edit spend";
         $("saveButton").textContent="Save changes";
         $("cancelEdit").hidden=false;
-        location.hash = "#add"; showView("add"); // editing happens in the Add Spend form
+        window.scrollTo({top:0,behavior:"smooth"});
       } else if (deleteId) {
         const e=expenses.find(item=>item.id===deleteId);
         if (e && confirm(`Delete the ${money(e.amount)} spend from ${e.date}?`)) {
@@ -1057,7 +1039,6 @@
     $("payment").addEventListener("change", () => rememberPayment($("payment").value));
     { const [a, b] = presetRange("month"); $("pieFrom").value = a; $("pieTo").value = b; } // default: current month
     render();
-    applyHash();
   </script>
 </body>
 </html>
