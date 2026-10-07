@@ -151,6 +151,36 @@
     }
     .time-picker .sep { margin-top: 6px; font-weight: 700; color: var(--muted); }
 
+    /* Location search (autocomplete) */
+    .loc-field { position: relative; }
+    #location {
+      padding-left: 40px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%230a8a96' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z'/%3E%3Ccircle cx='12' cy='9.5' r='2.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 13px center;
+    }
+    #location:focus { background-color: #fff; }
+    .loc-list {
+      position: absolute; left: 0; right: 0; top: 100%;
+      margin: 6px 0 0; padding: 6px; list-style: none;
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      box-shadow: 0 18px 40px -16px #12304a66, 0 2px 8px #12304a14;
+      z-index: 30; max-height: 320px; overflow: auto;
+    }
+    .loc-list li[role="option"] {
+      display: flex; gap: 11px; align-items: flex-start;
+      padding: 10px; border-radius: 10px; cursor: pointer;
+    }
+    .loc-list li[role="option"]:hover, .loc-list li.active { background: #eaf4f6; }
+    .loc-ico {
+      flex: 0 0 auto; width: 30px; height: 30px; margin-top: 1px; border-radius: 50%;
+      display: grid; place-items: center; background: #e2f1f3; color: var(--teal);
+    }
+    .loc-title { display: block; font-weight: 600; font-size: .92rem; color: var(--ink); line-height: 1.3; }
+    .loc-sub { display: block; font-weight: 400; font-size: .8rem; color: var(--muted); line-height: 1.35; }
+    .loc-msg { padding: 10px; font-size: .84rem; font-weight: 400; color: var(--muted); }
+    .loc-attr { padding: 6px 10px 2px; font-size: .7rem; font-weight: 400; color: #97a7b5; }
+
     button, .file-button {
       border: 0;
       border-radius: 10px;
@@ -287,12 +317,14 @@
       td.c-cat { order: 1; flex: 1 1 0; min-width: 0; font-weight: 700; }
       td.amount { order: 2; flex: 0 0 auto; }
       td.c-desc { order: 3; flex: 0 0 100%; }
-      td.c-date { order: 4; }
-      td.c-time { order: 5; }
-      td.c-pay { order: 6; }
+      td.c-loc { order: 4; flex: 0 0 100%; color: var(--muted); font-size: .82rem; }
+      td.c-loc::before { content: "📍 "; }
+      td.c-date { order: 5; }
+      td.c-time { order: 6; }
+      td.c-pay { order: 7; }
       td.c-date, td.c-time, td.c-pay { color: var(--muted); font-size: .82rem; }
-      td.c-notes { order: 7; flex: 0 0 100%; color: var(--muted); font-size: .82rem; }
-      td.actions { order: 8; flex: 0 0 100%; margin-top: 4px; }
+      td.c-notes { order: 8; flex: 0 0 100%; color: var(--muted); font-size: .82rem; }
+      td.actions { order: 9; flex: 0 0 100%; margin-top: 4px; }
       td.actions button { margin-left: 0; margin-right: 6px; }
     }
     @media (max-width: 360px) {
@@ -369,6 +401,14 @@
           <label>Description
             <input id="description" maxlength="120" placeholder="What did you spend on?">
           </label>
+
+          <div class="field loc-field">
+            <span class="field-label">Location</span>
+            <input id="location" type="text" maxlength="200" autocomplete="off" autocapitalize="words" spellcheck="false"
+                   placeholder="Search a place or type one" aria-label="Location"
+                   role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="locationList">
+            <ul id="locationList" class="loc-list" role="listbox" aria-label="Location suggestions" hidden></ul>
+          </div>
 
           <label>Notes
             <textarea id="notes" maxlength="500" placeholder="Optional details"></textarea>
@@ -464,7 +504,7 @@
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>Date</th><th>Time</th><th>Category</th><th>Description</th>
+              <th>Date</th><th>Time</th><th>Category</th><th>Description</th><th>Location</th>
               <th>Payment</th><th class="amount">Amount</th><th>Notes</th><th>Actions</th>
             </tr></thead>
             <tbody id="expenseRows"></tbody>
@@ -627,7 +667,7 @@
         const label = categoryLabel(e);
         return `<tr>
         <td class="c-date">${escapeHtml(e.date)}</td><td class="c-time">${escapeHtml(format12(e.time))}</td>
-        <td class="c-cat"><span class="dot" style="background:${catColor(label)}"></span>${escapeHtml(label)}</td><td class="c-desc">${escapeHtml(e.description || "")}</td>
+        <td class="c-cat"><span class="dot" style="background:${catColor(label)}"></span>${escapeHtml(label)}</td><td class="c-desc">${escapeHtml(e.description || "")}</td><td class="c-loc">${escapeHtml(e.location || "")}</td>
         <td class="c-pay">${escapeHtml(e.payment || "")}</td><td class="amount">${money(e.amount)}</td>
         <td class="c-notes">${escapeHtml(e.notes || "")}</td>
         <td class="actions"><button type="button" class="secondary" data-edit="${escapeHtml(e.id)}">Edit</button>
@@ -838,6 +878,7 @@
 
     $("expenseForm").addEventListener("submit", event => {
       event.preventDefault();
+      cancelLocationSearch(); // anything typed in Location is saved exactly as typed
       const amount = Number($("amount").value);
       if (!Number.isFinite(amount) || amount <= 0) {
         $("status").textContent = "Enter an amount greater than zero.";
@@ -848,7 +889,7 @@
         // Date falls back to today if left blank so month/year totals still work
         date: $("date").value || localDateString(), time: getTime(), category: $("category").value,
         amount: Math.round(amount*100)/100, payment: $("payment").value,
-        description: $("description").value.trim(), notes: $("notes").value.trim()
+        description: $("description").value.trim(), location: $("location").value.trim(), notes: $("notes").value.trim()
       };
       if (editingId) expenses = expenses.map(e=>e.id===editingId ? entry : e);
       else expenses.push(entry);
@@ -868,7 +909,7 @@
         editingId=e.id;
         $("date").value=e.date; setTime(e.time || "");
         $("category").value=e.category; $("amount").value=e.amount;
-        $("payment").value=e.payment || ""; $("description").value=e.description || "";
+        $("payment").value=e.payment || ""; $("description").value=e.description || ""; $("location").value=e.location || "";
         $("notes").value=e.notes || "";
         $("formTitle").textContent="Edit spend";
         $("saveButton").textContent="Save changes";
@@ -892,7 +933,7 @@
     function exportRows() {
       return sortedExpenses().map(e=>({
         Date:e.date, Time:format12(e.time), Category:e.category, Amount:Number(e.amount),
-        "Payment method":e.payment || "", Description:e.description || "", Notes:e.notes || ""
+        "Payment method":e.payment || "", Description:e.description || "", Location:e.location || "", Notes:e.notes || ""
       }));
     }
     function downloadBlob(blob, filename) {
@@ -908,7 +949,7 @@
       if (!window.XLSX) { alert("Excel export needs the SheetJS library to load. You can still use Export CSV."); return; }
       const workbook=XLSX.utils.book_new();
       const sheet=XLSX.utils.json_to_sheet(rows);
-      sheet["!cols"]=[{wch:12},{wch:10},{wch:16},{wch:12},{wch:16},{wch:28},{wch:28}];
+      sheet["!cols"]=[{wch:12},{wch:10},{wch:16},{wch:12},{wch:16},{wch:28},{wch:34},{wch:28}];
       XLSX.utils.book_append_sheet(workbook,sheet,"Spends");
       XLSX.writeFile(workbook,"spends.xlsx");
     });
@@ -988,7 +1029,7 @@
         id: uid(), date: importDate(o.date) || localDateString(), time: importTime(o.time),
         category: String(o.category ?? "").trim(), amount: Math.round(amount * 100) / 100,
         payment: String(o.paymentmethod ?? o.payment ?? "").trim(),
-        description: String(o.description ?? "").trim(), notes: String(o.notes ?? "").trim()
+        description: String(o.description ?? "").trim(), location: String(o.location ?? "").trim(), notes: String(o.notes ?? "").trim()
       };
     }
 
@@ -1005,7 +1046,7 @@
           incoming=list.map(e=>({
             id:String(e.id),date:String(e.date),time:String(e.time || ""),
             category:String(e.category),amount:Number(e.amount),payment:String(e.payment || ""),
-            description:String(e.description || ""),notes:String(e.notes || "")
+            description:String(e.description || ""),location:String(e.location || ""),notes:String(e.notes || "")
           }));
         } else {
           let objs;
@@ -1029,6 +1070,124 @@
       } catch(error) { alert(error.message || "Could not read that file."); }
       finally { event.target.value=""; }
     });
+
+    /* ---------- Location search (Uber-style autocomplete) ----------
+       Suggestions come from the free Photon geocoder (OpenStreetMap data).
+       Picking a suggestion fills the box with the full place name; if nothing is picked,
+       whatever was typed is saved as the location. */
+    const LAST_COORDS_KEY = "personalExpenseTracker.lastLocationCoords";
+    const locInput = $("location"), locList = $("locationList");
+    const locCache = new Map();
+    let locItems = [], locActive = -1, locTimer = null, locAbort = null, locReq = 0;
+    const PIN_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+
+    function readCoords() {
+      try {
+        const c = JSON.parse(localStorage.getItem(LAST_COORDS_KEY) || "null");
+        return c && Number.isFinite(c.lat) && Number.isFinite(c.lon) ? c : null;
+      } catch { return null; }
+    }
+    function placeFromFeature(f) {
+      const p = (f && f.properties) || {}, g = (f && f.geometry && f.geometry.coordinates) || [];
+      const street = `${p.housenumber ? p.housenumber + " " : ""}${p.street || ""}`.trim();
+      const primary = p.name || street || p.city || p.state || p.country || "";
+      const parts = [primary, p.name ? street : "", p.locality || p.district, p.city, p.state, p.country];
+      const seen = new Set(), clean = [];
+      for (const part of parts) {
+        const t = String(part || "").trim(), k = t.toLowerCase();
+        if (!t || seen.has(k)) continue;
+        seen.add(k); clean.push(t);
+      }
+      if (!clean.length) return null;
+      return { title: clean[0], subtitle: clean.slice(1).join(", "), label: clean.join(", "), lat: Number(g[1]), lon: Number(g[0]) };
+    }
+    async function searchPlaces(q) {
+      const key = q.toLowerCase();
+      if (locCache.has(key)) return locCache.get(key);
+      if (locAbort) locAbort.abort();
+      locAbort = new AbortController();
+      const c = readCoords(); // bias results toward the last place you picked
+      const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lang=en` + (c ? `&lat=${c.lat}&lon=${c.lon}` : "");
+      const res = await fetch(url, { signal: locAbort.signal });
+      if (!res.ok) throw new Error("Location search failed");
+      const data = await res.json();
+      const seen = new Set(), items = [];
+      for (const f of data.features || []) {
+        const place = placeFromFeature(f);
+        if (place && !seen.has(place.label.toLowerCase())) { seen.add(place.label.toLowerCase()); items.push(place); }
+      }
+      locCache.set(key, items);
+      return items;
+    }
+    function closeLocationList() {
+      locList.hidden = true; locList.innerHTML = ""; locItems = []; locActive = -1;
+      locInput.setAttribute("aria-expanded", "false");
+      locInput.removeAttribute("aria-activedescendant");
+    }
+    function cancelLocationSearch() {
+      clearTimeout(locTimer); locReq++;
+      if (locAbort) { locAbort.abort(); locAbort = null; }
+      closeLocationList();
+    }
+    function renderLocationList(items, message) {
+      locItems = items; locActive = -1;
+      const rows = items.map((it, i) => `<li role="option" id="locopt-${i}" data-i="${i}"><span class="loc-ico">${PIN_SVG}</span>
+        <span><span class="loc-title">${escapeHtml(it.title)}</span>${it.subtitle ? `<span class="loc-sub">${escapeHtml(it.subtitle)}</span>` : ""}</span></li>`).join("");
+      locList.innerHTML = rows + (message ? `<li class="loc-msg" aria-hidden="true">${escapeHtml(message)}</li>` : "") +
+        '<li class="loc-attr" aria-hidden="true">Search by Photon · © OpenStreetMap contributors</li>';
+      locList.hidden = false;
+      locInput.setAttribute("aria-expanded", "true");
+    }
+    function setActiveLocation(i) {
+      locActive = i;
+      locList.querySelectorAll('li[role="option"]').forEach((li, idx) => li.classList.toggle("active", idx === i));
+      if (i >= 0) {
+        locInput.setAttribute("aria-activedescendant", `locopt-${i}`);
+        const li = $(`locopt-${i}`);
+        if (li && li.scrollIntoView) li.scrollIntoView({ block: "nearest" });
+      } else locInput.removeAttribute("aria-activedescendant");
+    }
+    function chooseLocation(i) {
+      const place = locItems[i];
+      if (!place) return;
+      cancelLocationSearch();
+      locInput.value = place.label;
+      if (Number.isFinite(place.lat) && Number.isFinite(place.lon)) {
+        try { localStorage.setItem(LAST_COORDS_KEY, JSON.stringify({ lat: place.lat, lon: place.lon })); } catch { /* ignore */ }
+      }
+    }
+
+    locInput.addEventListener("input", () => {
+      clearTimeout(locTimer);
+      const q = locInput.value.trim();
+      if (q.length < 3) { cancelLocationSearch(); return; }
+      locTimer = setTimeout(async () => {
+        const id = ++locReq;
+        try {
+          const items = await searchPlaces(q);
+          if (id !== locReq || document.activeElement !== locInput) return;
+          renderLocationList(items, items.length ? "" : "No matching places. What you typed will be saved as the location.");
+        } catch (err) {
+          if (err && err.name === "AbortError") return;
+          if (id !== locReq || document.activeElement !== locInput) return;
+          renderLocationList([], "Suggestions unavailable right now. What you typed will be saved as the location.");
+        }
+      }, 300);
+    });
+    locInput.addEventListener("keydown", event => {
+      const open = !locList.hidden && locItems.length > 0;
+      if (event.key === "ArrowDown" && open) { event.preventDefault(); setActiveLocation((locActive + 1) % locItems.length); }
+      else if (event.key === "ArrowUp" && open) { event.preventDefault(); setActiveLocation((locActive - 1 + locItems.length) % locItems.length); }
+      else if (event.key === "Enter" && open && locActive >= 0) { event.preventDefault(); chooseLocation(locActive); }
+      else if (event.key === "Escape" && !locList.hidden) { event.preventDefault(); cancelLocationSearch(); }
+    });
+    locInput.addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== locInput) closeLocationList(); }, 150));
+    locList.addEventListener("mousedown", event => event.preventDefault()); // keep focus in the box while clicking
+    locList.addEventListener("click", event => {
+      const li = event.target.closest('li[role="option"]');
+      if (li) chooseLocation(Number(li.dataset.i));
+    });
+    $("expenseForm").addEventListener("reset", cancelLocationSearch);
 
     /* ---------- Start up ---------- */
     buildTimePicker();
