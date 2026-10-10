@@ -376,11 +376,6 @@
             <label>Category
               <select id="category">
                 <option value="">Select</option>
-                <option>Food</option><option>Petrol</option><option>Diesel</option>
-                <option>Shopping</option><option>Groceries</option><option>Health</option>
-                <option>Utilities</option><option>Entertainment</option><option>Online Shopping</option>
-                <option>Transport</option><option>Housing</option><option>Travel</option>
-                <option>Online Food</option><option>Electricity</option><option>Rent</option><option>Other</option>
               </select>
             </label>
 
@@ -640,6 +635,18 @@
                             "Online Shopping","Transport","Housing","Travel","Online Food","Other","Uncategorized",
                             "Electricity","Rent"];
     const PAYMENT_ORDER = ["UPI","Cash","Credit Card","Debit Card","Bank Transfer","Digital wallet","Others","Not specified"];
+    /* Category dropdown re-orders itself by how often each category is used (most used on top).
+       Ties (and unused categories) keep this default order. */
+    const CATEGORY_DEFAULT = ["Food","Petrol","Diesel","Shopping","Groceries","Health","Utilities","Entertainment",
+                              "Online Shopping","Transport","Housing","Travel","Online Food","Electricity","Rent","Other"];
+    function buildCategoryOptions() {
+      const sel = $("category"), keep = sel.value, counts = {};
+      for (const e of expenses) counts[e.category] = (counts[e.category] || 0) + 1;
+      const ordered = CATEGORY_DEFAULT.map((name, i) => ({ name, i, n: counts[name] || 0 }))
+        .sort((a, b) => b.n - a.n || a.i - b.i).map(x => x.name);
+      sel.innerHTML = '<option value="">Select</option>' + ordered.map(n => `<option>${escapeHtml(n)}</option>`).join("");
+      sel.value = keep;
+    }
     function colorFrom(order, label) {
       const i = order.indexOf(label);
       if (i >= 0) return PALETTE[i % PALETTE.length];
@@ -658,6 +665,7 @@
 
     /* ---------- Rendering: history ---------- */
     function render() {
+      buildCategoryOptions();
       renderHistory();
       renderDashboard();
     }
