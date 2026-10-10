@@ -380,7 +380,7 @@
                 <option>Shopping</option><option>Groceries</option><option>Health</option>
                 <option>Utilities</option><option>Entertainment</option><option>Online Shopping</option>
                 <option>Transport</option><option>Housing</option><option>Travel</option>
-                <option>Online Food</option><option>Other</option>
+                <option>Online Food</option><option>Electricity</option><option>Rent</option><option>Other</option>
               </select>
             </label>
 
@@ -634,9 +634,11 @@
     function paymentLabel(e) { return e.payment || "Not specified"; }
 
     const PALETTE = ["#0f9d9a","#2f6fed","#f5a524","#ef6461","#8b5cf6","#22a06b","#e879a8","#64748b",
-                     "#f97316","#06b6d4","#a3a847","#c2410c","#6366f1","#14b8a6","#94a3b8"];
+                     "#f97316","#06b6d4","#a3a847","#c2410c","#6366f1","#14b8a6","#94a3b8",
+                     "#facc15","#be185d"];
     const CATEGORY_ORDER = ["Food","Petrol","Diesel","Shopping","Groceries","Health","Utilities","Entertainment",
-                            "Online Shopping","Transport","Housing","Travel","Online Food","Other","Uncategorized"];
+                            "Online Shopping","Transport","Housing","Travel","Online Food","Other","Uncategorized",
+                            "Electricity","Rent"];
     const PAYMENT_ORDER = ["UPI","Cash","Credit Card","Debit Card","Bank Transfer","Digital wallet","Others","Not specified"];
     function colorFrom(order, label) {
       const i = order.indexOf(label);
@@ -960,12 +962,12 @@
       const columns=Object.keys(rows[0]);
       const quote=value=>`"${String(value ?? "").replace(/"/g,'""')}"`;
       const csv=[columns.map(quote).join(","),...rows.map(row=>columns.map(col=>quote(row[col])).join(","))].join("\r\n");
-      downloadBlob(new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"}),"spends.csv");
+      downloadBlob(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"}),"spends.csv");
     });
 
     /* ---------- Import (CSV / Excel / old JSON backups) ---------- */
     function parseCsv(text) {
-      text = text.replace(/^﻿/, "");
+      text = text.replace(/^\uFEFF/, "");
       const rows = []; let row = [], field = "", inQuotes = false;
       for (let i = 0; i < text.length; i++) {
         const c = text[i];
